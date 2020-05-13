@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "winbgi2.h"
+#include <math.h>
+#include "rk4.h"
+#define g 9.81;
+double l=5,m=1;
+
+void main()
+{
+	double h=0.0001;
+	double X[2];
+	double X1[2];
+	X[0]=3.1415/2; //angle
+	X[1]=0; //velocity 
+	
+
+graphics(1500,1500);
+	scale(-5,-5,5,5);
+
+	for(double t=0;t<10+h;t=t+h)
+	{
+		
+		veuler(0,X, h, 2, rhs_fun, X1);
+		double stopnie=X1[0]*360/(2*3.14);
+		double Ener=(m*pow(l,2)*pow(X1[1],2))/2+m*g*l*(1-cos(X1[0]));
+		point(X1[0],X1[1]);
+		printf("%.3lf\t %.3lf\t %.3lf\n", stopnie, X1[1], Ener);	
+	}
+
+		for(double t=0;t<10+h;t=t+h)
+	{
+		vrk4(0,X, h, 2, rhs_fun, X1);
+		X[0]=X1[0];
+		X[1]=X1[1];
+		double stopnie=X1[0]*360/(2*3.14);
+    double Ener=(m*pow(l,2)*pow(X1[1],2))/2+m*g*l*(1-cos(X1[0]));
+		printf("%.3lf\t %.3lf\t %.3lf\n", stopnie, X1[1], Ener);
+	}
+		
+	wait();
+}
+
+void veuler(double t, double *X, double h, int n, void (*rhs_fun)(double, double *,double *), double *X1)
+{
+	  double F[2];		
+		rhs_fun(t, X,F);
+		X1[0]=X[0]+h*F[0];
+		X1[1]=X[1]+h*F[1];
+		X[0]=X1[0];
+		X[1]=X1[1];
+}
+
+void rhs_fun(double t, double *X, double *F)
+{
+	F[0]= X[1];
+	F[1]= -g/l*sin(X[0]);
+}
+
+
